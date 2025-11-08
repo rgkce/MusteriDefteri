@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "293131990145",
+    "project_id": "musteridefterim-c99bf",
+    "storage_bucket": "musteridefterim-c99bf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293131990145:android:ca3896410cdcff70020980",
+        "android_client_info": {
+          "package_name": "com.example.musteridefterim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv_W9fN_tV4mkWag5DmIKhke0AIb94jh8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
