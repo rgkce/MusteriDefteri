@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
 
@@ -17,14 +19,82 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _obscureOld = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
+  bool _isLoading = false;
+
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  Future<void> _changePassword() async {
+    final oldPassword = _oldPasswordController.text.trim();
+    final newPassword = _newPasswordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (oldPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+      _showMessage("Lütfen tüm alanları doldurun.");
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      _showMessage("Yeni şifreler eşleşmiyor.");
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+
+      final user = _auth.currentUser;
+      if (user == null) {
+        _showMessage("Kullanıcı oturumu bulunamadı.");
+        return;
+      }
+
+      // Mevcut kullanıcı bilgilerini doğrula
+      final cred = EmailAuthProvider.credential(
+        email: user.email!,
+        password: oldPassword,
+      );
+
+      await user.reauthenticateWithCredential(cred);
+
+      // Şifreyi Firebase Authentication'da güncelle
+      await user.updatePassword(newPassword);
+
+      // İsteğe bağlı: Firestore’da kullanıcı verisini de güncelle
+      await _firestore.collection('users').doc(user.uid).update({
+        'password': newPassword,
+      });
+
+      _showMessage("Şifre başarıyla güncellendi ✅");
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        _showMessage("Mevcut şifre yanlış.");
+      } else if (e.code == 'weak-password') {
+        _showMessage("Yeni şifre çok zayıf. Daha güçlü bir şifre belirleyin.");
+      } else {
+        _showMessage("Hata: ${e.message}");
+      }
+    } catch (e) {
+      _showMessage("Bir hata oluştu: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     final primary = isDark ? AppColors.darkPrimary : AppColors.lightPrimary;
     final accent = isDark ? AppColors.darkAccent : AppColors.lightAccent;
     final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final textColor = isDark ? AppColors.darkText : AppColors.lightText;
+
     return Scaffold(
       backgroundColor: AppColors.darkPrimary,
       body: Container(
@@ -41,9 +111,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo
                 Image.asset('assets/logo.png', width: 250, height: 250),
-                // Title
                 Text(
                   "Şifreyi Değiştir",
                   style: AppStyles.headline1.copyWith(
@@ -53,89 +121,41 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                // Old Password
-                TextField(
+
+                _buildPasswordField(
                   controller: _oldPasswordController,
-                  obscureText: _obscureOld,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    hintText: "Mevcut Şifre",
-                    hintStyle: TextStyle(color: textColor.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: surface.withOpacity(0.5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.lock, color: textColor),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureOld ? Icons.visibility_off : Icons.visibility,
-                        color: textColor.withOpacity(0.9),
-                      ),
-                      onPressed:
-                          () => setState(() => _obscureOld = !_obscureOld),
-                    ),
-                  ),
+                  hint: "Mevcut Şifre",
+                  obscure: _obscureOld,
+                  toggleVisibility:
+                      () => setState(() => _obscureOld = !_obscureOld),
+                  icon: Icons.lock,
+                  color: textColor,
+                  surface: surface,
                 ),
                 const SizedBox(height: 16),
-                // New Password
-                TextField(
+                _buildPasswordField(
                   controller: _newPasswordController,
-                  obscureText: _obscureNew,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    hintText: "Yeni Şifre",
-                    hintStyle: TextStyle(color: textColor.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: surface.withOpacity(0.5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.lock_outline, color: textColor),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureNew ? Icons.visibility_off : Icons.visibility,
-                        color: textColor.withOpacity(0.7),
-                      ),
-                      onPressed:
-                          () => setState(() => _obscureNew = !_obscureNew),
-                    ),
-                  ),
+                  hint: "Yeni Şifre",
+                  obscure: _obscureNew,
+                  toggleVisibility:
+                      () => setState(() => _obscureNew = !_obscureNew),
+                  icon: Icons.lock_outline,
+                  color: textColor,
+                  surface: surface,
                 ),
                 const SizedBox(height: 16),
-                // Confirm Password
-                TextField(
+                _buildPasswordField(
                   controller: _confirmPasswordController,
-                  obscureText: _obscureConfirm,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    hintText: "Yeni Şifre (Tekrar)",
-                    hintStyle: TextStyle(color: textColor.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: surface.withOpacity(0.5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.lock_reset, color: textColor),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirm
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: textColor.withOpacity(0.7),
-                      ),
-                      onPressed:
-                          () => setState(
-                            () => _obscureConfirm = !_obscureConfirm,
-                          ),
-                    ),
-                  ),
+                  hint: "Yeni Şifre (Tekrar)",
+                  obscure: _obscureConfirm,
+                  toggleVisibility:
+                      () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  icon: Icons.lock_reset,
+                  color: textColor,
+                  surface: surface,
                 ),
                 const SizedBox(height: 30),
-                // Update Button
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -147,26 +167,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onPressed: () {
-                      // TODO: Add password update logic
-                    },
-                    child: Text(
-                      "Şifreyi Güncelle",
-                      style: AppStyles.caption.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
-                      ),
-                    ),
+                    onPressed: _isLoading ? null : _changePassword,
+                    child:
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                              "Şifreyi Güncelle",
+                              style: AppStyles.caption.copyWith(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                            ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-                // Back to Profile Link
+
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.pop(context),
                   child: Text(
                     "Geri Dön",
                     style: TextStyle(
@@ -179,6 +197,40 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String hint,
+    required bool obscure,
+    required VoidCallback toggleVisibility,
+    required IconData icon,
+    required Color color,
+    required Color surface,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: TextStyle(color: color),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: color.withOpacity(0.6)),
+        filled: true,
+        fillColor: surface.withOpacity(0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(icon, color: color),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscure ? Icons.visibility_off : Icons.visibility,
+            color: color.withOpacity(0.9),
+          ),
+          onPressed: toggleVisibility,
         ),
       ),
     );

@@ -22,4 +22,7 @@ class AppColors {
   static const Color darkSurface = Color(0xFF1E1E1E); // Hafif gri-siyah
   static const Color darkText = Color(0xFFECECEC); // Açık gri
   static const Color darkTextSecondary = Color(0xFFAAAAAA); // Soluk gri
+
+  static const Color error = Color.fromARGB(255, 211, 11, 11);
+  static const Color edit = Color.fromARGB(255, 48, 116, 225);
 }

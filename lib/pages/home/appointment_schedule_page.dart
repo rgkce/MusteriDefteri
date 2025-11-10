@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
@@ -15,10 +17,147 @@ class AppointmentSchedulePage extends StatefulWidget {
 class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  final Map<DateTime, List<Map<String, dynamic>>> _appointments = {};
-
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
+
+  Map<DateTime, List<Map<String, dynamic>>> _appointments = {};
+
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+    _loadAppointments();
+  }
+
+  Future<void> _loadAppointments() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final snapshot =
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('appointments')
+            .get();
+
+    final Map<DateTime, List<Map<String, dynamic>>> loaded = {};
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final date = DateTime.parse(data['date']);
+      loaded[date] ??= [];
+      loaded[date]!.add({
+        'id': doc.id,
+        'title': data['title'],
+        'time': data['time'],
+      });
+    }
+
+    setState(() => _appointments = loaded);
+  }
+
+  Future<void> _addOrUpdateAppointment({String? id}) async {
+    final user = _auth.currentUser;
+    if (user == null || _selectedDay == null) return;
+
+    final data = {
+      'title': _titleController.text.trim(),
+      'time': _timeController.text.trim(),
+      'date': _selectedDay!.toIso8601String(),
+    };
+
+    final ref = _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('appointments');
+
+    if (id == null) {
+      await ref.add(data);
+    } else {
+      await ref.doc(id).update(data);
+    }
+
+    await _loadAppointments();
+  }
+
+  Future<void> _deleteAppointment(String id) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('appointments')
+        .doc(id)
+        .delete();
+
+    await _loadAppointments();
+  }
+
+  void _showAddOrEditDialog({Map<String, dynamic>? existing}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (existing != null) {
+      _titleController.text = existing['title'];
+      _timeController.text = existing['time'];
+    } else {
+      _titleController.clear();
+      _timeController.clear();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor:
+              isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            existing == null ? "Yeni Randevu Ekle" : "Randevuyu Güncelle",
+            style: AppStyles.headline2.copyWith(
+              color: isDark ? AppColors.darkText : AppColors.lightText,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: "Randevu Başlığı"),
+              ),
+              TextField(
+                controller: _timeController,
+                decoration: const InputDecoration(
+                  labelText: "Saat (örn: 14:30)",
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("İptal"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (_titleController.text.isNotEmpty &&
+                    _timeController.text.isNotEmpty) {
+                  await _addOrUpdateAppointment(id: existing?['id']);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text(existing == null ? "Kaydet" : "Güncelle"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +188,6 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                       isDark ? AppColors.darkSurface : AppColors.lightSurface,
                 ),
               ),
-              // 📅 Takvim Alanı
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: TableCalendar(
@@ -85,36 +223,6 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                               : AppColors.lightSurface,
                       fontWeight: FontWeight.bold,
                     ),
-                    weekendTextStyle: TextStyle(
-                      color: isDark ? AppColors.lightRed : AppColors.lightRed,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    outsideTextStyle: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.lightText
-                              : AppColors.darkTextSecondary,
-                      fontStyle: FontStyle.italic,
-                    ),
-
-                    // Bugün veya seçili gün dışında kalan normal hücrelerin arka planı
-                    cellMargin: const EdgeInsets.all(4),
-                    cellPadding: const EdgeInsets.all(2),
-                    cellAlignment: Alignment.center,
-                  ),
-
-                  daysOfWeekStyle: DaysOfWeekStyle(
-                    weekdayStyle: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.darkSurface
-                              : AppColors.lightSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    weekendStyle: TextStyle(
-                      color: isDark ? AppColors.darkRed : AppColors.darkRed,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                   headerStyle: HeaderStyle(
                     formatButtonVisible: false,
@@ -136,7 +244,7 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
 
               const SizedBox(height: 8),
 
-              // 📋 Günlük Randevu Listesi
+              // 📋 Günlük Randevular
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -164,8 +272,6 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-
-                      // Listeleme
                       Expanded(
                         child:
                             selectedAppointments.isEmpty
@@ -177,8 +283,6 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                                           isDark
                                               ? AppColors.lightText
                                               : AppColors.darkText,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 )
@@ -237,16 +341,27 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                                               ),
                                             ],
                                           ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            color: Colors.redAccent,
-                                            onPressed: () {
-                                              setState(() {
-                                                selectedAppointments.removeAt(
-                                                  index,
-                                                );
-                                              });
-                                            },
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.edit),
+                                                color: AppColors.edit,
+                                                onPressed: () {
+                                                  _showAddOrEditDialog(
+                                                    existing: appt,
+                                                  );
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.delete),
+                                                color: AppColors.error,
+                                                onPressed: () {
+                                                  _deleteAppointment(
+                                                    appt['id'],
+                                                  );
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -262,78 +377,13 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
           ),
         ),
       ),
-
-      // ➕ Randevu ekleme butonu
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddAppointmentDialog,
+        onPressed: () => _showAddOrEditDialog(),
         backgroundColor:
             isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       bottomNavigationBar: const NavBar(currentIndex: 1),
-    );
-  }
-
-  void _showAddAppointmentDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor:
-              isDark ? AppColors.darkBackground : AppColors.lightBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            "Yeni Randevu Ekle",
-            style: AppStyles.headline2.copyWith(
-              color: isDark ? AppColors.darkText : AppColors.lightText,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: "Randevu Başlığı"),
-              ),
-              TextField(
-                controller: _timeController,
-                decoration: const InputDecoration(
-                  labelText: "Saat (örn: 14:30)",
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("İptal"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_selectedDay != null &&
-                    _titleController.text.isNotEmpty &&
-                    _timeController.text.isNotEmpty) {
-                  setState(() {
-                    _appointments[_selectedDay!] ??= [];
-                    _appointments[_selectedDay!]!.add({
-                      "title": _titleController.text,
-                      "time": _timeController.text,
-                    });
-                  });
-                  _titleController.clear();
-                  _timeController.clear();
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text("Kaydet"),
-            ),
-          ],
-        );
-      },
     );
   }
 }

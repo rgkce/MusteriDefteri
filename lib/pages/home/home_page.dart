@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> {
             .collection('users')
             .doc(user.uid)
             .collection('customers')
+            .orderBy('dateAdded', descending: true)
             .get();
 
     final data =
@@ -112,7 +113,9 @@ class _HomePageState extends State<HomePage> {
   void _sortCustomers() {
     setState(() {
       if (_sortOption == "A-Z") {
-        filteredCustomers.sort((a, b) => a["name"].compareTo(b["name"]));
+        filteredCustomers.sort(
+          (a, b) => a["name"].toLowerCase().compareTo(b["name"].toLowerCase()),
+        );
       } else if (_sortOption == "Zaman") {
         filteredCustomers.sort(
           (a, b) => b["dateAdded"].compareTo(a["dateAdded"]),
@@ -124,17 +127,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _filterCustomers(String query) {
-    setState(() {
-      filteredCustomers =
+    List<Map<String, dynamic>> results;
+    if (query.isEmpty) {
+      results = List.from(customers);
+    } else {
+      results =
           customers
               .where(
-                (customer) => customer["name"].toLowerCase().contains(
-                  query.toLowerCase(),
-                ),
+                (c) =>
+                    c["name"].toLowerCase().contains(query.toLowerCase()) ||
+                    c["phone"].contains(query),
               )
               .toList();
-      _sortCustomers();
+    }
+
+    setState(() {
+      filteredCustomers = results;
     });
+
+    _sortCustomers(); // filtreleme sonrası sıralamayı koru
   }
 
   void _showAddOrEditCustomerPopup(
