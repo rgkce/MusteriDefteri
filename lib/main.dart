@@ -5,12 +5,10 @@ import 'package:musteridefterim/firebase_options.dart';
 import 'package:musteridefterim/pages/auth/forgot_password_page.dart';
 import 'package:musteridefterim/pages/auth/login_page.dart';
 import 'package:musteridefterim/pages/auth/signup_page.dart';
-import 'package:musteridefterim/pages/helpers/add_customer_page.dart';
 import 'package:musteridefterim/pages/home/appointment_schedule_page.dart';
 import 'package:musteridefterim/pages/helpers/change_password_page.dart';
 import 'package:musteridefterim/pages/home/customer_detail_page.dart';
 import 'package:musteridefterim/pages/home/home_page.dart';
-import 'package:musteridefterim/pages/home/profile_page.dart';
 import 'package:musteridefterim/pages/splash/splash_screen.dart';
 
 void main() async {
@@ -51,7 +49,7 @@ class MyApp extends StatelessWidget {
         "/signup": (context) => const SignUpPage(),
         "/forgot": (context) => const ForgotPasswordPage(),
         "/home": (context) => const HomePage(),
-        "/profile": (context) => const ProfilePage(),
+        // "/profile": (context) => const ProfilePage(),
         "/change-password": (context) => const ChangePasswordPage(),
         "/customer-detail":
             (context) => CustomerDetailPage(
@@ -59,7 +57,7 @@ class MyApp extends StatelessWidget {
                   ModalRoute.of(context)!.settings.arguments
                       as Map<String, dynamic>,
             ),
-        "/add-customer": (context) => const AddCustomerPage(),
+        // "/add-customer": (context) => const AddCustomerPage(),
         "/randevular": (context) => const AppointmentSchedulePage(),
       },
     );
