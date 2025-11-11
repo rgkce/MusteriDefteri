@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:musteridefterim/constants/app_theme.dart';
 import 'package:musteridefterim/firebase_options.dart';
-import 'package:musteridefterim/pages/auth/forgot_password_page.dart';
+import 'package:musteridefterim/pages/helpers/forgot_password_page.dart';
 import 'package:musteridefterim/pages/auth/login_page.dart';
 import 'package:musteridefterim/pages/auth/signup_page.dart';
 import 'package:musteridefterim/pages/home/appointment_schedule_page.dart';
@@ -30,18 +30,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      // home: StreamBuilder<User?>(
-      //   stream: FirebaseAuth.instance.authStateChanges(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const SplashScreen();
-      //     }
-      //     if (snapshot.hasData) {
-      //       return const HomePage();
-      //     }
-      //     return const LoginPage();
-      //   },
-      // ),
       initialRoute: "/",
       routes: {
         "/": (context) => const SplashScreen(),
@@ -58,7 +46,7 @@ class MyApp extends StatelessWidget {
                       as Map<String, dynamic>,
             ),
         // "/add-customer": (context) => const AddCustomerPage(),
-        "/randevular": (context) => const AppointmentSchedulePage(),
+        "/appointment": (context) => const AppointmentSchedulePage(),
       },
     );
   }

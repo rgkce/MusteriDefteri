@@ -13,7 +13,7 @@ class NavBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/home');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/randevular');
+        Navigator.pushReplacementNamed(context, '/appointment');
         break;
     }
   }

@@ -85,15 +85,63 @@ class _HomePageState extends State<HomePage> {
         .doc(user.uid)
         .collection('customers');
 
-    if (id == null) {
+    // Aynı isimli müşteri var mı kontrol et
+    final existing = await ref.where('name', isEqualTo: name.trim()).get();
+
+    // Eğer yeni müşteri ekleniyorsa ve aynı isimli kayıt varsa uyar
+    if (id == null && existing.docs.isNotEmpty) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return AlertDialog(
+              backgroundColor:
+                  isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              title: Text(
+                "Aynı İsimde Müşteri Var",
+                style: AppStyles.headline1.copyWith(
+                  color: isDark ? AppColors.lightText : AppColors.darkText,
+                  fontSize: 20,
+                ),
+              ),
+              content: Text(
+                "Bu isimde zaten bir müşteri mevcut. Lütfen farklı bir isim girin.",
+                style: AppStyles.caption.copyWith(
+                  color: isDark ? AppColors.lightText : AppColors.darkText,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Tamam",
+                    style: TextStyle(
+                      color:
+                          isDark ? AppColors.lightAccent : AppColors.darkAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return; // Eklemeyi iptal et
+    }
+
+    // Güncelleme varsa direkt güncelle
+    if (id != null) {
+      await ref.doc(id).update({"name": name, "phone": phone});
+    } else {
       await ref.add({
-        "name": name,
-        "phone": phone,
+        "name": name.trim(),
+        "phone": phone.trim(),
         "dateAdded": DateTime.now(),
       });
-    } else {
-      await ref.doc(id).update({"name": name, "phone": phone});
     }
+
     await _loadCustomers();
   }
 
@@ -118,7 +166,7 @@ class _HomePageState extends State<HomePage> {
         );
       } else if (_sortOption == "Zaman") {
         filteredCustomers.sort(
-          (a, b) => b["dateAdded"].compareTo(a["dateAdded"]),
+          (a, b) => a["dateAdded"].compareTo(b["dateAdded"]),
         );
       } else {
         filteredCustomers = List.from(customers);
@@ -127,25 +175,37 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _filterCustomers(String query) {
-    List<Map<String, dynamic>> results;
-    if (query.isEmpty) {
-      results = List.from(customers);
-    } else {
-      results =
-          customers
-              .where(
-                (c) =>
-                    c["name"].toLowerCase().contains(query.toLowerCase()) ||
-                    c["phone"].contains(query),
-              )
-              .toList();
-    }
+    final search = query.toLowerCase().trim();
+
+    List<Map<String, dynamic>> results =
+        customers.where((customer) {
+          final name = (customer["name"] ?? "").toString().toLowerCase();
+          final phone = (customer["phone"] ?? "").toString().toLowerCase();
+          return name.contains(search) || phone.contains(search);
+        }).toList();
 
     setState(() {
       filteredCustomers = results;
     });
 
-    _sortCustomers(); // filtreleme sonrası sıralamayı koru
+    // Sıralamayı filtre sonrası uygulamak için ayrı çağır
+    _sortFilteredCustomers();
+  }
+
+  void _sortFilteredCustomers() {
+    setState(() {
+      if (_sortOption == "A-Z") {
+        filteredCustomers.sort(
+          (a, b) => a["name"].toString().toLowerCase().compareTo(
+            b["name"].toString().toLowerCase(),
+          ),
+        );
+      } else if (_sortOption == "Zaman") {
+        filteredCustomers.sort(
+          (a, b) => a["dateAdded"].compareTo(b["dateAdded"]),
+        );
+      }
+    });
   }
 
   void _showAddOrEditCustomerPopup(

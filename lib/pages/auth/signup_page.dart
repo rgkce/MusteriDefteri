@@ -19,6 +19,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool _isLoading = false;
 
+  // Şifreyi göster/gizle için
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   Future<void> _signUp() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
@@ -40,11 +44,9 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       setState(() => _isLoading = true);
 
-      // Kullanıcı oluşturma (Firebase Authentication)
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Firestore'a kullanıcı bilgilerini ekleme
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -54,7 +56,6 @@ class _SignUpPageState extends State<SignUpPage> {
             'createdAt': FieldValue.serverTimestamp(),
           });
 
-      // Başarılı → Ana sayfaya yönlendirme
       if (mounted) {
         Navigator.pushReplacementNamed(context, "/home");
       }
@@ -134,7 +135,12 @@ class _SignUpPageState extends State<SignUpPage> {
                   icon: Icons.lock,
                   color: textColor,
                   surface: surface,
-                  obscure: true,
+                  obscure: _obscurePassword,
+                  onToggleObscure: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -145,7 +151,12 @@ class _SignUpPageState extends State<SignUpPage> {
                   icon: Icons.lock_outline,
                   color: textColor,
                   surface: surface,
-                  obscure: true,
+                  obscure: _obscureConfirmPassword,
+                  onToggleObscure: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -218,6 +229,7 @@ class _SignUpPageState extends State<SignUpPage> {
     required Color color,
     required Color surface,
     bool obscure = false,
+    VoidCallback? onToggleObscure, // şifre göster/gizle callback
   }) {
     return TextField(
       controller: controller,
@@ -233,6 +245,16 @@ class _SignUpPageState extends State<SignUpPage> {
           borderSide: BorderSide.none,
         ),
         prefixIcon: Icon(icon, color: color),
+        suffixIcon:
+            onToggleObscure != null
+                ? IconButton(
+                  icon: Icon(
+                    obscure ? Icons.visibility_off : Icons.visibility,
+                    color: color,
+                  ),
+                  onPressed: onToggleObscure,
+                )
+                : null,
       ),
     );
   }

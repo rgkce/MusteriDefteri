@@ -15,17 +15,18 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  // Şifreyi göster/gizle için
+  bool _obscureText = true;
+
   Future<void> _login() async {
     setState(() => _isLoading = true);
 
     try {
-      // Firebase giriş işlemi
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Giriş başarılı → ana sayfaya yönlendir
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -71,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo
                 Image.asset("assets/logo.png", width: 200, height: 200),
                 const SizedBox(height: 10),
                 Text(
@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 30),
 
-                // Email TextField
+                // Email
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -103,10 +103,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password TextField
+                // Password
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscureText,
                   style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: "Şifre",
@@ -118,6 +118,17 @@ class _LoginPageState extends State<LoginPage> {
                       borderSide: BorderSide.none,
                     ),
                     prefixIcon: Icon(Icons.lock, color: textColor),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: textColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -148,6 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                   ),
                 ),
+
                 const SizedBox(height: 12),
 
                 // Şifremi Unuttum
@@ -166,6 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 8),
 
                 // Kayıt Ol Link

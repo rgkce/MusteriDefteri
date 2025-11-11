@@ -48,6 +48,8 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final date = DateTime.parse(data['date']);
+
+      // Burada artık saat farkı veya geçmiş kontrolü yapmayacağız
       loaded[date] ??= [];
       loaded[date]!.add({
         'id': doc.id,
@@ -356,8 +358,84 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                                                 icon: Icon(Icons.delete),
                                                 color: AppColors.error,
                                                 onPressed: () {
-                                                  _deleteAppointment(
-                                                    appt['id'],
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            'Dikkat!',
+                                                            style: AppStyles.headline1.copyWith(
+                                                              color:
+                                                                  isDark
+                                                                      ? AppColors
+                                                                          .darkText
+                                                                      : AppColors
+                                                                          .lightText,
+                                                            ),
+                                                          ),
+                                                          content: Text(
+                                                            'Bu randevuyu silmek istediğinize emin misiniz?',
+                                                            style: AppStyles.headline2.copyWith(
+                                                              color:
+                                                                  isDark
+                                                                      ? AppColors
+                                                                          .darkText
+                                                                      : AppColors
+                                                                          .lightText,
+                                                            ),
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed:
+                                                                  () =>
+                                                                      Navigator.of(
+                                                                        context,
+                                                                      ).pop(), // iptal
+                                                              child: Text(
+                                                                'İptal',
+                                                                style: AppStyles.caption.copyWith(
+                                                                  color:
+                                                                      isDark
+                                                                          ? AppColors
+                                                                              .darkAccent
+                                                                          : AppColors
+                                                                              .darkAccent,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                _deleteAppointment(
+                                                                  appt['id'],
+                                                                ); // silme işlemi
+                                                                Navigator.of(
+                                                                  context,
+                                                                ).pop(); // dialogu kapat
+                                                              },
+                                                              child: Text(
+                                                                'Sil',
+                                                                style: AppStyles.caption.copyWith(
+                                                                  color:
+                                                                      isDark
+                                                                          ? AppColors
+                                                                              .darkSecondary
+                                                                          : AppColors
+                                                                              .darkSecondary,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                   );
                                                 },
                                               ),

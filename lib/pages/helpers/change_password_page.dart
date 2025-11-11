@@ -150,7 +150,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   obscure: _obscureConfirm,
                   toggleVisibility:
                       () => setState(() => _obscureConfirm = !_obscureConfirm),
-                  icon: Icons.lock_reset,
+                  icon: Icons.lock_outline,
                   color: textColor,
                   surface: surface,
                 ),
