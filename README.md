@@ -6,22 +6,22 @@
 
 #### Uygulama; kullanıcıların günlük müşteri takibini kolaylaştırır, her işletmeye özel müşteri listesini dinamik olarak yönetir.
 
-### 🚀 Özellikler
+## 🚀 Özellikler
 
-## 🔐 Kimlik Doğrulama:
+### 🔐 Kimlik Doğrulama:
 
 - E-posta + Şifre ile kayıt olma
 - Firebase Auth tabanlı güvenli giriş
 - E-posta ile şifre sıfırlama
 - Oturum açıkken uygulamanın otomatik giriş yapması
 
-## 👤 Kullanıcı Yönetimi
+### 👤 Kullanıcı Yönetimi
 
 - Kullanıcı adı ve e-posta bilgilerini Firestore’dan dinamik çekme
 - Kullanıcıya özel müşteri listesi
 - Profil ayarları (şifre değiştirme vb.)
 
-## 📋 Müşteri Yönetimi
+### 📋 Müşteri Yönetimi
 
 - Müşteri ekleme
 - Müşteri detaylarını görüntüleme
@@ -29,43 +29,43 @@
 - Müşteriyi silme
 - Her kullanıcı için ayrı müşteri listesi (Firestore’da userId altında tutulur)
 
-## 📅 Randevu Sistemi
+### 📅 Randevu Sistemi
 
 - Randevu ekleme
 - Tarihe göre filtreleme
 - Randevu görüntüleme
 - Firestore’a kayıt
 
-## 🎨 Arayüz Tasarımı
+### 🎨 Arayüz Tasarımı
 
 - Light & Dark Mode destekler
 - AppColors ve AppStyles ile merkezi tasarım yönetimi
 - Yumuşak geçişli degrade arka planlar
 - Responsive tasarım
 
-### 🛠 Kullanılan Teknolojiler
+## 🛠 Kullanılan Teknolojiler
 
-## Flutter
+### Flutter
 
 - State Management: Stateful widgets + FutureBuilder + StreamBuilder
 - Material Design
 - Responsive UI
 - Custom Theme (AppTheme)
 
-## Firebase
+### Firebase
 
 - Firebase Authentication → Giriş/Kayıt/Şifre Sıfırlama
 - Cloud Firestore → Kullanıcı ve müşteri verileri
 - Firebase Core
 - Firebase Options (flutterfire CLI ile oluşturuldu)
 
-## Diğer
+### Diğer
 
 - MVVM’ye yakın modüler sayfa yapısı
 - Drawer + Navigation routes
 - Custom tasarım bileşenleri
 
-### 📱 Uygulama Kullanımı
+## 📱 Uygulama Kullanımı
 
 1. Kayıt Ol
 
@@ -92,7 +92,7 @@
 
 - E-posta gir → Firebase kullanıcıya reset linki gönderir
 
-### 🔧 Projeyi Çalıştırma
+## 🔧 Projeyi Çalıştırma
 
 1. Depoyu klonla
    git clone https://github.com/kullanici/MusteriDefterim.git
@@ -112,7 +112,7 @@
 4. Uygulamayı başlat
    flutter run
 
-### 📂 Proje Yapısı
+## 📂 Proje Yapısı
 
 lib/
 ├── constants/
@@ -136,15 +136,15 @@ lib/
 ├── firebase_options.dart
 └── main.dart
 
-### 📌 Gelecek Geliştirmeler
+## 📌 Gelecek Geliştirmeler
 
 - Bildirim sistemi
 - Takvim görünümü
 - Bulut yedekleme & geri yükleme
 - PDF müşteri raporu alma
 
-### 👩‍💻 Geliştirici
+## 👩‍💻 Geliştirici
 
-## Rümeysa Gökçe
+### Rümeysa Gökçe
 
-## Software Developer
+### Software Developer
