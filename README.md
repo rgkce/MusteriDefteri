@@ -101,6 +101,4 @@
 
 ## 👩‍💻 Geliştirici
 
-### Rümeysa Gökçe
-
-### Software Developer
+### Rümeysa Gökçe - Software Developer
