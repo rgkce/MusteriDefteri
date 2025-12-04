@@ -767,9 +767,9 @@ class _HomePageState extends State<HomePage> {
           _drawerTile(
             Icons.logout_rounded,
             "Çıkış Yap",
-            () => _showConfirmationDialog(context, "Çıkış Yap", () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/login');
+            () => _showConfirmationDialog(context, "Çıkış Yap", () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacementNamed(context, "/login");
             }),
             isDark,
             iconColor: isDark ? AppColors.lightSurface : AppColors.darkSurface,

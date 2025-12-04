@@ -19,9 +19,55 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool _isLoading = false;
 
-  // Şifreyi göster/gizle için
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  bool _isPolicyAccepted = false; // <-- Checkbox için
+
+  Future<void> _showPolicyDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor:
+              isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          title: Text(
+            "Gizlilik Politikası, Kullanım Koşulları ve İzinler",
+            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+          ),
+          content: SizedBox(
+            height: 350,
+            child: SingleChildScrollView(
+              child: Text("""
+**Gizlilik Politikası**
+Bu uygulama, kullanıcı verilerini yalnızca hizmetlerin doğru çalışabilmesi amacıyla toplar. Veriler asla üçüncü taraflarla paylaşılmaz.
+
+**Kullanım Koşulları**
+Uygulamayı kullanarak sağlanan hizmet şartlarını kabul etmiş olursunuz. Kullanıcı bilgilerin doğruluğundan kendisi sorumludur.
+
+**İzinler**
+Uygulama düzgün çalışabilmek için aşağıdaki izinleri kullanabilir:
+• İnternet erişimi
+• Bildirim alma
+• Cihaz bilgisi okuma
+
+Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
+                """, style: TextStyle(color: textColor, height: 1.4)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Kapat"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _signUp() async {
     final name = _nameController.text.trim();
@@ -38,6 +84,10 @@ class _SignUpPageState extends State<SignUpPage> {
     }
     if (password != confirmPassword) {
       _showError('Şifreler uyuşmuyor.');
+      return;
+    }
+    if (!_isPolicyAccepted) {
+      _showError('Devam etmek için politikayı kabul etmelisiniz.');
       return;
     }
 
@@ -108,7 +158,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 30),
 
-                // Ad Soyad
                 _buildTextField(
                   controller: _nameController,
                   hint: "Ad Soyad",
@@ -118,7 +167,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // E-posta
                 _buildTextField(
                   controller: _emailController,
                   hint: "E-posta",
@@ -128,7 +176,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Şifre
                 _buildTextField(
                   controller: _passwordController,
                   hint: "Şifre",
@@ -137,14 +184,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   surface: surface,
                   obscure: _obscurePassword,
                   onToggleObscure: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
+                    setState(() => _obscurePassword = !_obscurePassword);
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // Şifre Tekrar
                 _buildTextField(
                   controller: _confirmPasswordController,
                   hint: "Şifre Tekrar",
@@ -153,18 +197,43 @@ class _SignUpPageState extends State<SignUpPage> {
                   surface: surface,
                   obscure: _obscureConfirmPassword,
                   onToggleObscure: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
+                    setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    );
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Kayıt Ol Butonu
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _isPolicyAccepted,
+                      onChanged: (value) {
+                        setState(() => _isPolicyAccepted = value ?? false);
+                      },
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _showPolicyDialog,
+                        child: Text(
+                          "Gizlilik Politikası, Kullanım Koşulları ve İzinleri okudum, kabul ediyorum.",
+                          style: TextStyle(
+                            color: surface,
+                            fontSize: 15,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _signUp,
+                    onPressed:
+                        _isLoading || !_isPolicyAccepted ? null : _signUp,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: surface,
@@ -188,7 +257,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Giriş Yap Linki
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -229,7 +297,7 @@ class _SignUpPageState extends State<SignUpPage> {
     required Color color,
     required Color surface,
     bool obscure = false,
-    VoidCallback? onToggleObscure, // şifre göster/gizle callback
+    VoidCallback? onToggleObscure,
   }) {
     return TextField(
       controller: controller,
