@@ -147,7 +147,7 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset("assets/logo.png", width: 250, height: 250),
+                Image.asset("assets/logo.png", width: 150, height: 150),
                 Text(
                   "Kayıt Ol",
                   style: AppStyles.headline1.copyWith(
