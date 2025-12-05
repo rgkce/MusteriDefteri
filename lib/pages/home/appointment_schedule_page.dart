@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
 import 'package:musteridefterim/navigation/navbar.dart';
@@ -30,6 +31,18 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
     super.initState();
     _selectedDay = _focusedDay;
     _loadAppointments();
+
+    // SAAT input otomatik formatlama
+    _timeController.addListener(() {
+      final text = _timeController.text;
+
+      if (text.length == 2 && !text.contains(":")) {
+        _timeController.text = "$text:";
+        _timeController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _timeController.text.length),
+        );
+      }
+    });
   }
 
   Future<void> _loadAppointments() async {
@@ -99,6 +112,7 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
     await _loadAppointments();
   }
 
+  // ▪️ Randevu ekleme/güncelleme popup
   void _showAddOrEditDialog({Map<String, dynamic>? existing}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -132,10 +146,19 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: "Randevu Başlığı"),
               ),
+
+              // ▪️ Saat input – sadece saat formatı girilebilsin
               TextField(
                 controller: _timeController,
+                maxLength: 5, // HH:MM
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
+                  LengthLimitingTextInputFormatter(5),
+                ],
                 decoration: const InputDecoration(
                   labelText: "Saat (örn: 14:30)",
+                  counterText: "",
                 ),
               ),
             ],
@@ -147,6 +170,24 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final time = _timeController.text;
+
+                // Saat doğrulama
+                final isValid = RegExp(
+                  r'^[0-2][0-9]:[0-5][0-9]$',
+                ).hasMatch(time);
+
+                if (!isValid) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Lütfen geçerli bir saat formatı girin (HH:MM)",
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 if (_titleController.text.isNotEmpty &&
                     _timeController.text.isNotEmpty) {
                   await _addOrUpdateAppointment(id: existing?['id']);
@@ -289,6 +330,9 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                                   ),
                                 )
                                 : ListView.builder(
+                                  padding: const EdgeInsets.only(
+                                    bottom: 80, // FAB ile çakışmasın diye
+                                  ),
                                   itemCount: selectedAppointments.length,
                                   itemBuilder: (context, index) {
                                     final appt = selectedAppointments[index];
