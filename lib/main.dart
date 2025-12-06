@@ -30,7 +30,10 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const AuthGate(),
+
+      // ✅ Splash ilk açılan ekran olacak
+      home: const SplashWrapper(),
+
       routes: {
         "/login": (context) => const LoginPage(),
         "/signup": (context) => const SignUpPage(),
@@ -49,7 +52,35 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Kullanıcı giriş yapmış mı kontrol eden widget
+/// ✅ Splash ekranını gösterip sonra Auth kontrolüne geçen yapı
+class SplashWrapper extends StatefulWidget {
+  const SplashWrapper({super.key});
+
+  @override
+  State<SplashWrapper> createState() => _SplashWrapperState();
+}
+
+class _SplashWrapperState extends State<SplashWrapper> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Splash 2 saniye görünsün
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AuthGate()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SplashScreen();
+  }
+}
+
+/// ✅ Kullanıcı giriş yapmış mı kontrol eden widget
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -58,13 +89,10 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Kullanıcı giriş yapmışsa
         if (snapshot.hasData) {
           return const HomePage();
         }
-
-        // Giriş yapmadıysa Login Page açılır
-        return const SplashScreen();
+        return const LoginPage();
       },
     );
   }

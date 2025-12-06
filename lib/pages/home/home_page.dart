@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
 import 'package:musteridefterim/navigation/navbar.dart';
@@ -283,6 +284,13 @@ class _HomePageState extends State<HomePage> {
                 TextField(
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
+
+                  // ✅ sadece rakam ve max 11 karakter
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(11),
+                  ],
+
                   decoration: InputDecoration(
                     labelText: "Telefon Numarası",
                     filled: true,
@@ -296,6 +304,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
