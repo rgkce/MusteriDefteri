@@ -146,7 +146,7 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: "Randevu Başlığı"),
               ),
-
+              SizedBox(height: 10),
               // ▪️ Saat input – sadece saat formatı girilebilsin
               TextField(
                 controller: _timeController,
@@ -329,164 +329,194 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                                     ),
                                   ),
                                 )
-                                : ListView.builder(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 80, // FAB ile çakışmasın diye
-                                  ),
-                                  itemCount: selectedAppointments.length,
-                                  itemBuilder: (context, index) {
-                                    final appt = selectedAppointments[index];
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        vertical: 6,
+                                : Builder(
+                                  builder: (context) {
+                                    // ✅ Listeyi kopyala ve saate göre sırala
+                                    final sortedAppointments = List<
+                                      Map<String, dynamic>
+                                    >.from(selectedAppointments)..sort((a, b) {
+                                      final timeA =
+                                          a["time"] as String; // örn: "09:30"
+                                      final timeB = b["time"] as String;
+
+                                      final partsA = timeA.split(":");
+                                      final partsB = timeB.split(":");
+
+                                      final minutesA =
+                                          int.parse(partsA[0]) * 60 +
+                                          int.parse(partsA[1]);
+                                      final minutesB =
+                                          int.parse(partsB[0]) * 60 +
+                                          int.parse(partsB[1]);
+
+                                      return minutesA.compareTo(
+                                        minutesB,
+                                      ); // küçük → büyük
+                                    });
+
+                                    return ListView.builder(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 80, // FAB ile çakışmasın diye
                                       ),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            isDark
-                                                ? AppColors.lightText
-                                                    .withOpacity(0.8)
-                                                : AppColors.darkText
-                                                    .withOpacity(0.8),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                appt["title"],
-                                                style: AppStyles.bodyText
-                                                    .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          isDark
-                                                              ? AppColors
-                                                                  .darkPrimary
-                                                              : AppColors
-                                                                  .lightPrimary,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                "Saat: ${appt["time"]}",
-                                                style: AppStyles.caption
-                                                    .copyWith(
-                                                      color:
-                                                          isDark
-                                                              ? AppColors
-                                                                  .darkText
-                                                              : AppColors
-                                                                  .lightText,
-                                                    ),
-                                              ),
-                                            ],
+                                      itemCount: sortedAppointments.length,
+                                      itemBuilder: (context, index) {
+                                        final appt = sortedAppointments[index];
+
+                                        return Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 6,
                                           ),
-                                          Row(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                isDark
+                                                    ? AppColors.lightText
+                                                        .withOpacity(0.8)
+                                                    : AppColors.darkText
+                                                        .withOpacity(0.8),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              IconButton(
-                                                icon: Icon(Icons.edit),
-                                                color: AppColors.edit,
-                                                onPressed: () {
-                                                  _showAddOrEditDialog(
-                                                    existing: appt,
-                                                  );
-                                                },
-                                              ),
-                                              IconButton(
-                                                icon: Icon(Icons.delete),
-                                                color: AppColors.error,
-                                                onPressed: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            'Dikkat!',
-                                                            style: AppStyles.headline1.copyWith(
-                                                              color:
-                                                                  isDark
-                                                                      ? AppColors
-                                                                          .darkText
-                                                                      : AppColors
-                                                                          .lightText,
-                                                            ),
-                                                          ),
-                                                          content: Text(
-                                                            'Bu randevuyu silmek istediğinize emin misiniz?',
-                                                            style: AppStyles.headline2.copyWith(
-                                                              color:
-                                                                  isDark
-                                                                      ? AppColors
-                                                                          .darkText
-                                                                      : AppColors
-                                                                          .lightText,
-                                                            ),
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed:
-                                                                  () =>
-                                                                      Navigator.of(
-                                                                        context,
-                                                                      ).pop(), // iptal
-                                                              child: Text(
-                                                                'İptal',
-                                                                style: AppStyles.caption.copyWith(
-                                                                  color:
-                                                                      isDark
-                                                                          ? AppColors
-                                                                              .darkAccent
-                                                                          : AppColors
-                                                                              .darkAccent,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 16,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                _deleteAppointment(
-                                                                  appt['id'],
-                                                                ); // silme işlemi
-                                                                Navigator.of(
-                                                                  context,
-                                                                ).pop(); // dialogu kapat
-                                                              },
-                                                              child: Text(
-                                                                'Sil',
-                                                                style: AppStyles.caption.copyWith(
-                                                                  color:
-                                                                      isDark
-                                                                          ? AppColors
-                                                                              .darkSecondary
-                                                                          : AppColors
-                                                                              .darkSecondary,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 16,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    appt["title"],
+                                                    style: AppStyles.bodyText
+                                                        .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              isDark
+                                                                  ? AppColors
+                                                                      .darkPrimary
+                                                                  : AppColors
+                                                                      .lightPrimary,
                                                         ),
-                                                  );
-                                                },
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    "Saat: ${appt["time"]}",
+                                                    style: AppStyles.caption
+                                                        .copyWith(
+                                                          color:
+                                                              isDark
+                                                                  ? AppColors
+                                                                      .darkText
+                                                                  : AppColors
+                                                                      .lightText,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit,
+                                                    ),
+                                                    color: AppColors.edit,
+                                                    onPressed: () {
+                                                      _showAddOrEditDialog(
+                                                        existing: appt,
+                                                      );
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                    ),
+                                                    color: AppColors.error,
+                                                    onPressed: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => AlertDialog(
+                                                              title: Text(
+                                                                'Dikkat!',
+                                                                style: AppStyles
+                                                                    .headline1
+                                                                    .copyWith(
+                                                                      color:
+                                                                          isDark
+                                                                              ? AppColors.darkText
+                                                                              : AppColors.lightText,
+                                                                    ),
+                                                              ),
+                                                              content: Text(
+                                                                'Bu randevuyu silmek istediğinize emin misiniz?',
+                                                                style: AppStyles
+                                                                    .headline2
+                                                                    .copyWith(
+                                                                      color:
+                                                                          isDark
+                                                                              ? AppColors.darkText
+                                                                              : AppColors.lightText,
+                                                                    ),
+                                                              ),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () =>
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(),
+                                                                  child: Text(
+                                                                    'İptal',
+                                                                    style: AppStyles.caption.copyWith(
+                                                                      color:
+                                                                          AppColors
+                                                                              .darkAccent,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    _deleteAppointment(
+                                                                      appt['id'],
+                                                                    );
+                                                                    Navigator.of(
+                                                                      context,
+                                                                    ).pop();
+                                                                  },
+                                                                  child: Text(
+                                                                    'Sil',
+                                                                    style: AppStyles.caption.copyWith(
+                                                                      color:
+                                                                          AppColors
+                                                                              .darkSecondary,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
-                                        ],
-                                      ),
+                                        );
+                                      },
                                     );
                                   },
                                 ),
