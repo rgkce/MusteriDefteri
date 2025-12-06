@@ -10,6 +10,7 @@ import 'package:musteridefterim/pages/home/appointment_schedule_page.dart';
 import 'package:musteridefterim/pages/helpers/change_password_page.dart';
 import 'package:musteridefterim/pages/home/customer_detail_page.dart';
 import 'package:musteridefterim/pages/home/home_page.dart';
+import 'package:musteridefterim/pages/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +64,7 @@ class AuthGate extends StatelessWidget {
         }
 
         // Giriş yapmadıysa Login Page açılır
-        return const LoginPage();
+        return const SplashScreen();
       },
     );
   }
