@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
 
@@ -30,6 +31,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
     }
   }
 
+  // ----------------------------- YENİ İŞLEM EKLEME DİYALOĞU -----------------------------
   void _showAddTransactionDialog() {
     final titleController = TextEditingController();
     final descController = TextEditingController();
@@ -134,6 +136,110 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
     );
   }
 
+  // ----------------------------- DÜZENLEME DİYALOĞU -----------------------------
+  void _showEditTransactionDialog(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final titleController = TextEditingController(text: data['title']);
+    final descController = TextEditingController(text: data['description']);
+    final priceController = TextEditingController(
+      text: data['price'].toString(),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
+
+        return AlertDialog(
+          backgroundColor:
+              isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(screenWidth * 0.04),
+          ),
+          title: Text(
+            "İşlemi Düzenle",
+            style: AppStyles.headline2.copyWith(
+              color: isDark ? AppColors.darkText : AppColors.lightText,
+              fontWeight: FontWeight.bold,
+              fontSize: screenWidth * 0.05,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTextField(
+                  titleController,
+                  "İşlem Adı",
+                  isDark,
+                  width: screenWidth * 0.8,
+                  height: screenHeight * 0.06,
+                ),
+                SizedBox(height: screenHeight * 0.015),
+                _buildTextField(
+                  descController,
+                  "İşlem Detayı",
+                  isDark,
+                  width: screenWidth * 0.8,
+                  height: screenHeight * 0.06,
+                ),
+                SizedBox(height: screenHeight * 0.015),
+                _buildTextField(
+                  priceController,
+                  "Ücret (₺)",
+                  isDark,
+                  keyboard: TextInputType.number,
+                  width: screenWidth * 0.8,
+                  height: screenHeight * 0.06,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "İptal",
+                style: AppStyles.caption.copyWith(
+                  color: AppColors.lightAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await doc.reference.update({
+                  'title': titleController.text,
+                  'description': descController.text,
+                  'price': double.tryParse(priceController.text) ?? 0,
+                });
+
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                ),
+              ),
+              child: const Text(
+                "Kaydet",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ----------------------------- TEXTFIELD WIDGET -----------------------------
   Widget _buildTextField(
     TextEditingController controller,
     String label,
@@ -167,6 +273,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
     );
   }
 
+  // ----------------------------- BUILD -----------------------------
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -188,6 +295,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
         child: SafeArea(
           child: Column(
             children: [
+              // ---------- HEADER ----------
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: screenWidth * 0.04,
@@ -239,6 +347,8 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
                   ],
                 ),
               ),
+
+              // ---------- SEARCH ----------
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: screenWidth * 0.05,
@@ -285,6 +395,8 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
                   ),
                 ),
               ),
+
+              // ---------- TRANSACTION LIST ----------
               SizedBox(height: screenHeight * 0.01),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
@@ -317,78 +429,103 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
-                        final data = docs[index].data() as Map<String, dynamic>;
+                        final doc = docs[index];
+                        final data = doc.data() as Map<String, dynamic>;
                         final date = (data['date'] as Timestamp).toDate();
 
-                        return Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.04,
-                            vertical: screenHeight * 0.007,
-                          ),
-                          padding: EdgeInsets.all(screenWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color:
-                                isDark
-                                    ? AppColors.lightText.withOpacity(0.8)
-                                    : AppColors.darkText.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(
-                              screenWidth * 0.04,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        return Slidable(
+                          key: ValueKey(doc.id),
+                          endActionPane: ActionPane(
+                            motion: const BehindMotion(),
                             children: [
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      data['title'],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: screenWidth * 0.045,
-                                        color:
-                                            isDark
-                                                ? AppColors.darkPrimary
-                                                : AppColors.lightPrimary,
-                                      ),
-                                    ),
-                                    SizedBox(height: screenHeight * 0.005),
-                                    Text(
-                                      data['description'],
-                                      style: TextStyle(
-                                        color:
-                                            isDark
-                                                ? AppColors.darkText
-                                                : AppColors.lightText,
-                                        fontSize: screenWidth * 0.038,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
-                                      style: TextStyle(
-                                        color:
-                                            isDark
-                                                ? AppColors.darkText
-                                                : AppColors.lightText,
-                                        fontSize: screenWidth * 0.033,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              SlidableAction(
+                                onPressed:
+                                    (_) => _showEditTransactionDialog(doc),
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                icon: Icons.edit,
+                                label: 'Düzenle',
                               ),
-                              Text(
-                                "${data['price']} ₺",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: screenWidth * 0.045,
-                                  color:
-                                      isDark
-                                          ? AppColors.darkPrimary
-                                          : AppColors.lightPrimary,
-                                ),
+                              SlidableAction(
+                                onPressed: (_) => doc.reference.delete(),
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete,
+                                label: 'Sil',
                               ),
                             ],
+                          ),
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.007,
+                            ),
+                            padding: EdgeInsets.all(screenWidth * 0.03),
+                            decoration: BoxDecoration(
+                              color:
+                                  isDark
+                                      ? AppColors.lightText.withOpacity(0.8)
+                                      : AppColors.darkText.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(
+                                screenWidth * 0.04,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data['title'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * 0.045,
+                                          color:
+                                              isDark
+                                                  ? AppColors.darkPrimary
+                                                  : AppColors.lightPrimary,
+                                        ),
+                                      ),
+                                      SizedBox(height: screenHeight * 0.005),
+                                      Text(
+                                        data['description'],
+                                        style: TextStyle(
+                                          color:
+                                              isDark
+                                                  ? AppColors.darkText
+                                                  : AppColors.lightText,
+                                          fontSize: screenWidth * 0.038,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
+                                        style: TextStyle(
+                                          color:
+                                              isDark
+                                                  ? AppColors.darkText
+                                                  : AppColors.lightText,
+                                          fontSize: screenWidth * 0.033,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  "${data['price']} ₺",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: screenWidth * 0.045,
+                                    color:
+                                        isDark
+                                            ? AppColors.darkPrimary
+                                            : AppColors.lightPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -400,6 +537,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
           ),
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor:
             isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
