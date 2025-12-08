@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
 import 'package:musteridefterim/constants/app_styles.dart';
+import 'package:musteridefterim/pages/auth/login_page.dart';
+import 'package:musteridefterim/pages/home/home_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,7 +33,11 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, "/login");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AuthGate()),
+      );
+      // Navigator.pushReplacementNamed(context, "/login");
     });
   }
 
@@ -91,6 +98,27 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
       ),
+    );
+  }
+}
+
+// Kullanıcı giriş yapmış mı kontrol eden widget
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // Kullanıcı giriş yapmışsa
+        if (snapshot.hasData) {
+          return const HomePage();
+        }
+
+        // Giriş yapmadıysa Login Page açılır
+        return const LoginPage();
+      },
     );
   }
 }

@@ -22,7 +22,17 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  bool _isPolicyAccepted = false; // <-- Checkbox için
+  bool _isPolicyAccepted = false;
+
+  // -----------------------------
+  //  E-POSTA VALIDASYONU
+  // -----------------------------
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@(?:gmail|hotmail|outlook|yahoo|icloud)\.com$",
+    );
+    return emailRegex.hasMatch(email);
+  }
 
   Future<void> _showPolicyDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -69,6 +79,9 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
     );
   }
 
+  // -----------------------------
+  //  KAYIT İŞLEMİ
+  // -----------------------------
   Future<void> _signUp() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
@@ -82,10 +95,25 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
       _showError('Lütfen tüm alanları doldurun.');
       return;
     }
+
+    if (!_isValidEmail(email)) {
+      _showError(
+        "Lütfen geçerli bir e-posta adresi girin. "
+        "(Ör: @gmail.com / @hotmail.com)",
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError("Şifre en az 6 karakter olmalıdır.");
+      return;
+    }
+
     if (password != confirmPassword) {
       _showError('Şifreler uyuşmuyor.');
       return;
     }
+
     if (!_isPolicyAccepted) {
       _showError('Devam etmek için politikayı kabul etmelisiniz.');
       return;
@@ -227,6 +255,7 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 10),
 
                 SizedBox(
