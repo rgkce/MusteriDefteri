@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:musteridefterim/constants/app_colors.dart';
-import 'package:musteridefterim/constants/app_styles.dart';
 
 class NavBar extends StatelessWidget {
   final int currentIndex;
@@ -15,6 +14,9 @@ class NavBar extends StatelessWidget {
       case 1:
         Navigator.pushReplacementNamed(context, '/appointment');
         break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
     }
   }
 
@@ -24,34 +26,27 @@ class NavBar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors:
-              isDark
-                  ? [
-                    AppColors.darkPrimary.withOpacity(0.8),
-                    AppColors.darkAccent.withOpacity(0.8),
-                  ]
-                  : [
-                    AppColors.lightPrimary.withOpacity(0.8),
-                    AppColors.lightAccent.withOpacity(0.8),
-                  ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, -2),
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+            width: 1,
           ),
-        ],
+        ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _navItem(context, 0, Icons.home, "Ana Sayfa"),
-          _navItem(context, 1, Icons.group, "Randevular"),
+          _navItem(context, 0, Icons.home_rounded, "Ana Sayfa", isDark),
+          _navItem(
+            context,
+            1,
+            Icons.calendar_month_rounded,
+            "Randevular",
+            isDark,
+          ),
+          _navItem(context, 2, Icons.person_rounded, "Profil", isDark),
         ],
       ),
     );
@@ -62,25 +57,33 @@ class NavBar extends StatelessWidget {
     int index,
     IconData icon,
     String label,
+    bool isDark,
   ) {
     final bool isActive = index == currentIndex;
+
+    // Active Color: Indigo (Accent)
+    // Inactive Color: Grey (Secondary Text)
+    final Color activeColor =
+        isDark ? AppColors.darkAccent : AppColors.lightAccent;
+    final Color inactiveColor =
+        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
+    final Color color = isActive ? activeColor : inactiveColor;
+
     return GestureDetector(
       onTap: () => _onItemTapped(context, index),
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: isActive ? AppColors.darkText : AppColors.darkTextSecondary,
-            size: 28,
-          ),
+          Icon(icon, color: color, size: 26),
           const SizedBox(height: 4),
           Text(
             label,
-            style: AppStyles.bodyText.copyWith(
-              color:
-                  isActive ? AppColors.darkText : AppColors.darkTextSecondary,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              color: color,
             ),
           ),
         ],

@@ -144,7 +144,17 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
             children: [
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: "Randevu Başlığı"),
+                decoration: InputDecoration(
+                  labelText: "Randevu Başlığı",
+                  hintStyle: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.darkText.withOpacity(0.7)
+                            : AppColors.lightText.withOpacity(0.7),
+                  ),
+                  filled: true,
+                  fillColor: isDark ? AppColors.darkSurface : Colors.white,
+                ),
               ),
               SizedBox(height: 10),
               // ▪️ Saat input – sadece saat formatı girilebilsin
@@ -156,9 +166,17 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
                   LengthLimitingTextInputFormatter(5),
                 ],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Saat (örn: 14:30)",
                   counterText: "",
+                  hintStyle: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.darkText.withOpacity(0.7)
+                            : AppColors.lightText.withOpacity(0.7),
+                  ),
+                  filled: true,
+                  fillColor: isDark ? AppColors.darkSurface : Colors.white,
                 ),
               ),
             ],
@@ -166,9 +184,21 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("İptal"),
+              child: Text(
+                "İptal",
+                style: AppStyles.caption.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isDark
+                        ? AppColors.lightSecondary
+                        : AppColors.lightSecondary.withOpacity(0.7),
+              ),
               onPressed: () async {
                 final time = _timeController.text;
 
@@ -209,330 +239,341 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
         _appointments[_selectedDay ?? DateTime.now()] ?? [];
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors:
-                isDark
-                    ? [AppColors.darkPrimary, AppColors.darkAccent]
-                    : [AppColors.lightPrimary, AppColors.lightAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        title: Text(
+          "Randevu Takvimi",
+          style: AppStyles.headline2.copyWith(
+            color: isDark ? AppColors.darkText : AppColors.lightText,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Text(
-                "Randevu Takvimi",
-                style: AppStyles.headline1.copyWith(
-                  color:
-                      isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: TableCalendar(
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                  },
-                  calendarStyle: CalendarStyle(
-                    selectedDecoration: BoxDecoration(
-                      color:
-                          isDark
-                              ? AppColors.lightSecondary
-                              : AppColors.darkSecondary,
-                      shape: BoxShape.circle,
-                    ),
-                    todayDecoration: BoxDecoration(
-                      color:
-                          isDark
-                              ? AppColors.lightPrimary.withOpacity(0.6)
-                              : AppColors.darkPrimary.withOpacity(0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    defaultTextStyle: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.darkSurface
-                              : AppColors.lightSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false, // Managed by NavBar
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
+                daysOfWeekStyle: DaysOfWeekStyle(
+                  weekdayStyle: TextStyle(
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                    fontWeight: FontWeight.bold,
                   ),
-                  headerStyle: HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: true,
-                    titleTextStyle: AppStyles.headline2.copyWith(
-                      color: isDark ? AppColors.lightText : AppColors.darkText,
-                    ),
-                    leftChevronIcon: Icon(
-                      Icons.chevron_left,
-                      color: isDark ? AppColors.lightText : AppColors.darkText,
-                    ),
-                    rightChevronIcon: Icon(
-                      Icons.chevron_right,
-                      color: isDark ? AppColors.lightText : AppColors.darkText,
-                    ),
+                  weekendStyle: TextStyle(
+                    color: isDark ? AppColors.darkRed : AppColors.lightRed,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // 📋 Günlük Randevular
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
+                calendarStyle: CalendarStyle(
+                  outsideDaysVisible: false,
+                  weekendTextStyle: TextStyle(
+                    color: isDark ? AppColors.darkRed : AppColors.lightRed,
                   ),
-                  decoration: BoxDecoration(
+                  defaultTextStyle: TextStyle(
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                  ),
+                  selectedDecoration: BoxDecoration(
                     color:
                         isDark
-                            ? AppColors.darkSurface.withOpacity(0.1)
-                            : AppColors.lightSurface.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
+                            ? AppColors.lightSecondary
+                            : AppColors.darkSecondary,
+                    shape: BoxShape.circle,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${_selectedDay?.day ?? DateTime.now().day}.${_selectedDay?.month ?? DateTime.now().month}.${_selectedDay?.year ?? DateTime.now().year} tarihli randevular:",
-                        style: AppStyles.bodyText.copyWith(
-                          color:
-                              isDark ? AppColors.lightText : AppColors.darkText,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child:
-                            selectedAppointments.isEmpty
-                                ? Center(
-                                  child: Text(
-                                    "Henüz randevu eklenmemiş.",
-                                    style: AppStyles.caption.copyWith(
-                                      color:
-                                          isDark
-                                              ? AppColors.lightText
-                                              : AppColors.darkText,
-                                    ),
-                                  ),
-                                )
-                                : Builder(
-                                  builder: (context) {
-                                    // ✅ Listeyi kopyala ve saate göre sırala
-                                    final sortedAppointments = List<
-                                      Map<String, dynamic>
-                                    >.from(selectedAppointments)..sort((a, b) {
-                                      final timeA =
-                                          a["time"] as String; // örn: "09:30"
-                                      final timeB = b["time"] as String;
-
-                                      final partsA = timeA.split(":");
-                                      final partsB = timeB.split(":");
-
-                                      final minutesA =
-                                          int.parse(partsA[0]) * 60 +
-                                          int.parse(partsA[1]);
-                                      final minutesB =
-                                          int.parse(partsB[0]) * 60 +
-                                          int.parse(partsB[1]);
-
-                                      return minutesA.compareTo(
-                                        minutesB,
-                                      ); // küçük → büyük
-                                    });
-
-                                    return ListView.builder(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 80, // FAB ile çakışmasın diye
-                                      ),
-                                      itemCount: sortedAppointments.length,
-                                      itemBuilder: (context, index) {
-                                        final appt = sortedAppointments[index];
-
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 6,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isDark
-                                                    ? AppColors.lightText
-                                                        .withOpacity(0.8)
-                                                    : AppColors.darkText
-                                                        .withOpacity(0.8),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    appt["title"],
-                                                    style: AppStyles.bodyText
-                                                        .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              isDark
-                                                                  ? AppColors
-                                                                      .darkPrimary
-                                                                  : AppColors
-                                                                      .lightPrimary,
-                                                        ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    "Saat: ${appt["time"]}",
-                                                    style: AppStyles.caption
-                                                        .copyWith(
-                                                          color:
-                                                              isDark
-                                                                  ? AppColors
-                                                                      .darkText
-                                                                  : AppColors
-                                                                      .lightText,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.edit,
-                                                    ),
-                                                    color: AppColors.edit,
-                                                    onPressed: () {
-                                                      _showAddOrEditDialog(
-                                                        existing: appt,
-                                                      );
-                                                    },
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                    ),
-                                                    color: AppColors.error,
-                                                    onPressed: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (
-                                                              context,
-                                                            ) => AlertDialog(
-                                                              title: Text(
-                                                                'Dikkat!',
-                                                                style: AppStyles
-                                                                    .headline1
-                                                                    .copyWith(
-                                                                      color:
-                                                                          isDark
-                                                                              ? AppColors.darkText
-                                                                              : AppColors.lightText,
-                                                                    ),
-                                                              ),
-                                                              content: Text(
-                                                                'Bu randevuyu silmek istediğinize emin misiniz?',
-                                                                style: AppStyles
-                                                                    .headline2
-                                                                    .copyWith(
-                                                                      color:
-                                                                          isDark
-                                                                              ? AppColors.darkText
-                                                                              : AppColors.lightText,
-                                                                    ),
-                                                              ),
-                                                              actions: [
-                                                                TextButton(
-                                                                  onPressed:
-                                                                      () =>
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(),
-                                                                  child: Text(
-                                                                    'İptal',
-                                                                    style: AppStyles.caption.copyWith(
-                                                                      color:
-                                                                          AppColors
-                                                                              .darkAccent,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    _deleteAppointment(
-                                                                      appt['id'],
-                                                                    );
-                                                                    Navigator.of(
-                                                                      context,
-                                                                    ).pop();
-                                                                  },
-                                                                  child: Text(
-                                                                    'Sil',
-                                                                    style: AppStyles.caption.copyWith(
-                                                                      color:
-                                                                          AppColors
-                                                                              .darkSecondary,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                      ),
-                    ],
+                  selectedTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  todayDecoration: BoxDecoration(
+                    color:
+                        isDark
+                            ? AppColors.lightPrimary.withOpacity(0.6)
+                            : AppColors.darkPrimary.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  todayTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                headerStyle: HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                  titleTextStyle: AppStyles.headline2.copyWith(
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                  ),
+                  leftChevronIcon: Icon(
+                    Icons.chevron_left,
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                  ),
+                  rightChevronIcon: Icon(
+                    Icons.chevron_right,
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // 📋 Günlük Randevular
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      isDark
+                          ? AppColors.darkSurface.withOpacity(0.1)
+                          : AppColors.lightSurface.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${_selectedDay?.day ?? DateTime.now().day}.${_selectedDay?.month ?? DateTime.now().month}.${_selectedDay?.year ?? DateTime.now().year} tarihli randevular:",
+                      style: AppStyles.bodyText.copyWith(
+                        color:
+                            isDark ? AppColors.darkText : AppColors.lightText,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child:
+                          selectedAppointments.isEmpty
+                              ? Center(
+                                child: Text(
+                                  "Henüz randevu eklenmemiş.",
+                                  style: AppStyles.caption.copyWith(
+                                    color:
+                                        isDark
+                                            ? AppColors.darkText
+                                            : AppColors.lightText,
+                                  ),
+                                ),
+                              )
+                              : Builder(
+                                builder: (context) {
+                                  // ✅ Listeyi kopyala ve saate göre sırala
+                                  final sortedAppointments =
+                                      List<Map<String, dynamic>>.from(
+                                        selectedAppointments,
+                                      )..sort((a, b) {
+                                        final timeA =
+                                            a["time"] as String; // örn: "09:30"
+                                        final timeB = b["time"] as String;
+
+                                        final partsA = timeA.split(":");
+                                        final partsB = timeB.split(":");
+
+                                        final minutesA =
+                                            int.parse(partsA[0]) * 60 +
+                                            int.parse(partsA[1]);
+                                        final minutesB =
+                                            int.parse(partsB[0]) * 60 +
+                                            int.parse(partsB[1]);
+
+                                        return minutesA.compareTo(
+                                          minutesB,
+                                        ); // küçük → büyük
+                                      });
+
+                                  return ListView.builder(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 80, // FAB ile çakışmasın diye
+                                    ),
+                                    itemCount: sortedAppointments.length,
+                                    itemBuilder: (context, index) {
+                                      final appt = sortedAppointments[index];
+
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 6,
+                                        ),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isDark
+                                                  ? AppColors.lightText
+                                                      .withOpacity(0.8)
+                                                  : AppColors.darkText
+                                                      .withOpacity(0.8),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  appt["title"],
+                                                  style: AppStyles.bodyText
+                                                      .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            isDark
+                                                                ? AppColors
+                                                                    .darkPrimary
+                                                                : AppColors
+                                                                    .lightPrimary,
+                                                      ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  "Saat: ${appt["time"]}",
+                                                  style: AppStyles.caption
+                                                      .copyWith(
+                                                        color:
+                                                            isDark
+                                                                ? AppColors
+                                                                    .darkText
+                                                                : AppColors
+                                                                    .lightText,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit),
+                                                  color: AppColors.edit,
+                                                  onPressed: () {
+                                                    _showAddOrEditDialog(
+                                                      existing: appt,
+                                                    );
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.delete,
+                                                  ),
+                                                  color: AppColors.error,
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (
+                                                            context,
+                                                          ) => AlertDialog(
+                                                            title: Text(
+                                                              'Dikkat!',
+                                                              style: AppStyles
+                                                                  .headline1
+                                                                  .copyWith(
+                                                                    color:
+                                                                        isDark
+                                                                            ? AppColors.darkText
+                                                                            : AppColors.lightText,
+                                                                  ),
+                                                            ),
+                                                            content: Text(
+                                                              'Bu randevuyu silmek istediğinize emin misiniz?',
+                                                              style: AppStyles
+                                                                  .headline2
+                                                                  .copyWith(
+                                                                    color:
+                                                                        isDark
+                                                                            ? AppColors.darkText
+                                                                            : AppColors.lightText,
+                                                                  ),
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed:
+                                                                    () =>
+                                                                        Navigator.of(
+                                                                          context,
+                                                                        ).pop(),
+                                                                child: Text(
+                                                                  'İptal',
+                                                                  style: AppStyles.caption.copyWith(
+                                                                    color:
+                                                                        AppColors
+                                                                            .darkAccent,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        16,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  _deleteAppointment(
+                                                                    appt['id'],
+                                                                  );
+                                                                  Navigator.of(
+                                                                    context,
+                                                                  ).pop();
+                                                                },
+                                                                child: Text(
+                                                                  'Sil',
+                                                                  style: AppStyles.caption.copyWith(
+                                                                    color:
+                                                                        AppColors
+                                                                            .darkSecondary,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        16,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddOrEditDialog(),
-        backgroundColor:
-            isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
+        backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       bottomNavigationBar: const NavBar(currentIndex: 1),

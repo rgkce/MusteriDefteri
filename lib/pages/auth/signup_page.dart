@@ -155,164 +155,192 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primary = isDark ? AppColors.darkPrimary : AppColors.lightPrimary;
-    final accent = isDark ? AppColors.darkAccent : AppColors.lightAccent;
+
+    // Minimal design colors
     final textColor = isDark ? AppColors.darkText : AppColors.lightText;
-    final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurface;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [primary, accent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset("assets/logo.png", width: 150, height: 150),
-                Text(
-                  "Kayıt Ol",
-                  style: AppStyles.headline1.copyWith(
-                    color: surface,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/logo.png", width: 100, height: 100),
+              const SizedBox(height: 16),
+              Text(
+                "Kayıt Ol",
+                style: AppStyles.headline1.copyWith(
+                  color: textColor,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Yeni bir hesap oluşturun",
+                style: AppStyles.caption.copyWith(
+                  color:
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              _buildTextField(
+                controller: _nameController,
+                hint: "Ad Soyad",
+                icon: Icons.person_outline,
+                color: textColor,
+                surface: surfaceColor,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: _emailController,
+                hint: "E-posta",
+                icon: Icons.email_outlined,
+                color: textColor,
+                surface: surfaceColor,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: _passwordController,
+                hint: "Şifre",
+                icon: Icons.lock_outline,
+                color: textColor,
+                surface: surfaceColor,
+                isDark: isDark,
+                obscure: _obscurePassword,
+                onToggleObscure: () {
+                  setState(() => _obscurePassword = !_obscurePassword);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: _confirmPasswordController,
+                hint: "Şifre Tekrar",
+                icon: Icons.lock_outline,
+                color: textColor,
+                surface: surfaceColor,
+                isDark: isDark,
+                obscure: _obscureConfirmPassword,
+                onToggleObscure: () {
+                  setState(
+                    () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Checkbox(
+                    value: _isPolicyAccepted,
+                    activeColor:
+                        isDark ? AppColors.darkAccent : AppColors.lightPrimary,
+                    onChanged: (value) {
+                      setState(() => _isPolicyAccepted = value ?? false);
+                    },
                   ),
-                ),
-                const SizedBox(height: 30),
-
-                _buildTextField(
-                  controller: _nameController,
-                  hint: "Ad Soyad",
-                  icon: Icons.person,
-                  color: textColor,
-                  surface: surface,
-                ),
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: _emailController,
-                  hint: "E-posta",
-                  icon: Icons.email,
-                  color: textColor,
-                  surface: surface,
-                ),
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: _passwordController,
-                  hint: "Şifre",
-                  icon: Icons.lock,
-                  color: textColor,
-                  surface: surface,
-                  obscure: _obscurePassword,
-                  onToggleObscure: () {
-                    setState(() => _obscurePassword = !_obscurePassword);
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: _confirmPasswordController,
-                  hint: "Şifre Tekrar",
-                  icon: Icons.lock_outline,
-                  color: textColor,
-                  surface: surface,
-                  obscure: _obscureConfirmPassword,
-                  onToggleObscure: () {
-                    setState(
-                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _isPolicyAccepted,
-                      onChanged: (value) {
-                        setState(() => _isPolicyAccepted = value ?? false);
-                      },
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _showPolicyDialog,
-                        child: Text(
-                          "Gizlilik Politikası, Kullanım Koşulları ve İzinleri okudum, kabul ediyorum.",
-                          style: TextStyle(
-                            color: surface,
-                            fontSize: 15,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 10),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed:
-                        _isLoading || !_isPolicyAccepted ? null : _signUp,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: surface,
-                      foregroundColor: primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child:
-                        _isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(
-                              "Kayıt Ol",
-                              style: AppStyles.caption.copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Zaten hesabın var mı?",
-                      style: AppStyles.bodyText.copyWith(
-                        color: surface,
-                        fontSize: 18,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, "/login");
-                      },
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: _showPolicyDialog,
                       child: Text(
-                        "Giriş Yap",
-                        style: AppStyles.bodyText.copyWith(
-                          color: surface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                        "Gizlilik Politikası, Kullanım Koşulları ve İzinleri okudum, kabul ediyorum.",
+                        style: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading || !_isPolicyAccepted ? null : _signUp,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor:
+                        isDark ? AppColors.darkAccent : AppColors.lightPrimary,
+                    foregroundColor: Colors.white,
+                    elevation: 0, // Flat
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            "Kayıt Ol",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Zaten hesabın var mı?",
+                    style: TextStyle(
+                      color:
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                      fontSize: 15,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, "/login");
+                    },
+                    child: Text(
+                      "Giriş Yap",
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.darkAccent
+                                : AppColors.lightPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -325,6 +353,7 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
     required IconData icon,
     required Color color,
     required Color surface,
+    required bool isDark,
     bool obscure = false,
     VoidCallback? onToggleObscure,
   }) {
@@ -333,21 +362,48 @@ Uygulamayı kullanarak bu izinleri kabul etmiş olursunuz.
       obscureText: obscure,
       style: TextStyle(color: color),
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: color.withOpacity(0.6)),
+        labelText: hint,
+        labelStyle: TextStyle(
+          color:
+              isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+        ),
         filled: true,
-        fillColor: surface.withOpacity(0.5),
+        fillColor: surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        prefixIcon: Icon(icon, color: color),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+            width: 1.5,
+          ),
+        ),
+        prefixIcon: Icon(
+          icon,
+          color:
+              isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+        ),
         suffixIcon:
             onToggleObscure != null
                 ? IconButton(
                   icon: Icon(
-                    obscure ? Icons.visibility_off : Icons.visibility,
-                    color: color,
+                    obscure
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                   ),
                   onPressed: onToggleObscure,
                 )

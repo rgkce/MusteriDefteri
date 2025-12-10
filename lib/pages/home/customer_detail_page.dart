@@ -93,10 +93,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 "İptal",
-                style: AppStyles.caption.copyWith(
-                  color: AppColors.lightAccent,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppStyles.caption.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             ElevatedButton(
@@ -117,7 +114,9 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
+                    isDark
+                        ? AppColors.lightSecondary
+                        : AppColors.lightSecondary.withOpacity(0.7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(screenWidth * 0.03),
                 ),
@@ -202,10 +201,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 "İptal",
-                style: AppStyles.caption.copyWith(
-                  color: AppColors.lightAccent,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppStyles.caption.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             ElevatedButton(
@@ -220,13 +216,15 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
+                    isDark
+                        ? AppColors.lightSecondary
+                        : AppColors.lightSecondary.withOpacity(0.7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(screenWidth * 0.03),
                 ),
               ),
               child: const Text(
-                "Kaydet",
+                "Güncelle",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -265,6 +263,14 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
                     ? AppColors.darkText.withOpacity(0.7)
                     : AppColors.lightText.withOpacity(0.7),
           ),
+          hintStyle: TextStyle(
+            color:
+                isDark
+                    ? AppColors.darkText.withOpacity(0.7)
+                    : AppColors.lightText.withOpacity(0.7),
+          ),
+          filled: true,
+          fillColor: isDark ? AppColors.darkSurface : Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(width * 0.03),
           ),
@@ -278,269 +284,272 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Minimal Theme Colors
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    // final primaryColor =
+    //     isDark ? AppColors.darkPrimary : AppColors.lightPrimary;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors:
-                isDark
-                    ? [AppColors.darkPrimary, AppColors.darkAccent]
-                    : [AppColors.lightPrimary, AppColors.lightAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: textColor),
+          onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ---------- HEADER ----------
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.04,
-                  vertical: screenHeight * 0.015,
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios,
-                            color:
-                                isDark
-                                    ? AppColors.darkSurface
-                                    : AppColors.lightSurface,
-                          ),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          },
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.customer["name"],
-                            textAlign: TextAlign.center,
-                            style: AppStyles.headline1.copyWith(
-                              color:
-                                  isDark
-                                      ? AppColors.darkSurface
-                                      : AppColors.lightSurface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenWidth * 0.06,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: screenHeight * 0.005),
-                    Text(
-                      "Telefon: ${widget.customer["phone"]}",
-                      style: AppStyles.bodyText.copyWith(
-                        color:
-                            isDark
-                                ? AppColors.darkSurface.withOpacity(0.8)
-                                : AppColors.lightSurface.withOpacity(0.8),
-                        fontSize: screenWidth * 0.04,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // ---------- SEARCH ----------
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.01,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color:
-                        isDark
-                            ? AppColors.lightText.withOpacity(0.5)
-                            : AppColors.darkText.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
-                    border: Border.all(color: AppColors.darkSurface),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (_) => setState(() {}),
-                    style: TextStyle(
-                      color:
-                          isDark ? AppColors.lightSurface : AppColors.lightText,
-                      fontSize: screenWidth * 0.04,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "İşlem ara...",
-                      hintStyle: TextStyle(
-                        color:
-                            isDark
-                                ? AppColors.lightSurface
-                                : AppColors.lightText,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color:
-                            isDark
-                                ? AppColors.lightSurface
-                                : AppColors.lightText,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.04,
-                        vertical: screenHeight * 0.015,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ---------- TRANSACTION LIST ----------
-              SizedBox(height: screenHeight * 0.01),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream:
-                      transactionsRef
-                          .orderBy('date', descending: true)
-                          .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text("Henüz işlem yok."));
-                    }
-
-                    final docs =
-                        snapshot.data!.docs.where((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final query = _searchController.text.toLowerCase();
-                          return data['title']
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(query) ||
-                              data['description']
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(query);
-                        }).toList();
-
-                    return ListView.builder(
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        final doc = docs[index];
-                        final data = doc.data() as Map<String, dynamic>;
-                        final date = (data['date'] as Timestamp).toDate();
-
-                        return Slidable(
-                          key: ValueKey(doc.id),
-                          endActionPane: ActionPane(
-                            motion: const BehindMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed:
-                                    (_) => _showEditTransactionDialog(doc),
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                icon: Icons.edit,
-                                label: 'Düzenle',
-                              ),
-                              SlidableAction(
-                                onPressed: (_) => doc.reference.delete(),
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                icon: Icons.delete,
-                                label: 'Sil',
-                              ),
-                            ],
-                          ),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.04,
-                              vertical: screenHeight * 0.007,
-                            ),
-                            padding: EdgeInsets.all(screenWidth * 0.03),
-                            decoration: BoxDecoration(
-                              color:
-                                  isDark
-                                      ? AppColors.lightText.withOpacity(0.8)
-                                      : AppColors.darkText.withOpacity(0.8),
-                              borderRadius: BorderRadius.circular(
-                                screenWidth * 0.04,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        data['title'],
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: screenWidth * 0.045,
-                                          color:
-                                              isDark
-                                                  ? AppColors.darkPrimary
-                                                  : AppColors.lightPrimary,
-                                        ),
-                                      ),
-                                      SizedBox(height: screenHeight * 0.005),
-                                      Text(
-                                        data['description'],
-                                        style: TextStyle(
-                                          color:
-                                              isDark
-                                                  ? AppColors.darkText
-                                                  : AppColors.lightText,
-                                          fontSize: screenWidth * 0.038,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
-                                        style: TextStyle(
-                                          color:
-                                              isDark
-                                                  ? AppColors.darkText
-                                                  : AppColors.lightText,
-                                          fontSize: screenWidth * 0.033,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  "${data['price']} ₺",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.045,
-                                    color:
-                                        isDark
-                                            ? AppColors.darkPrimary
-                                            : AppColors.lightPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+        title: Text(
+          widget.customer["name"],
+          style: AppStyles.headline2.copyWith(
+            color: textColor,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ---------- INFO HEADER ----------
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: screenWidth * 0.05,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.phone,
+                    size: 16,
+                    color: textColor.withOpacity(0.7),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "${widget.customer["phone"]}",
+                    style: AppStyles.bodyText.copyWith(
+                      color: textColor.withOpacity(0.8),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
+            // ---------- SEARCH ----------
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: 10,
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (_) => setState(() {}),
+                style: TextStyle(
+                  color: isDark ? AppColors.darkText : AppColors.lightText,
+                ),
+                decoration: InputDecoration(
+                  hintText: "İşlem ara...",
+                  hintStyle: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                    size: 22,
+                  ),
+                  filled: true,
+                  fillColor: isDark ? AppColors.darkSurface : Colors.white,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+            ),
+
+            // ---------- TRANSACTION LIST ----------
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    transactionsRef
+                        .orderBy('date', descending: true)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 48,
+                            color: textColor.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "Henüz işlem yok.",
+                            style: TextStyle(
+                              color: textColor.withOpacity(0.5),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final docs =
+                      snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        final query = _searchController.text.toLowerCase();
+                        return data['title'].toString().toLowerCase().contains(
+                              query,
+                            ) ||
+                            data['description']
+                                .toString()
+                                .toLowerCase()
+                                .contains(query);
+                      }).toList();
+
+                  return ListView.separated(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.05,
+                      vertical: 10,
+                    ),
+                    itemCount: docs.length,
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final doc = docs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+                      final date = (data['date'] as Timestamp).toDate();
+
+                      return Slidable(
+                        key: ValueKey(doc.id),
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          extentRatio: 0.4,
+                          children: [
+                            SlidableAction(
+                              onPressed: (_) => _showEditTransactionDialog(doc),
+                              backgroundColor: AppColors.edit,
+                              foregroundColor: Colors.white,
+                              icon: Icons.edit,
+                              borderRadius: const BorderRadius.horizontal(
+                                left: Radius.circular(12),
+                              ),
+                            ),
+                            SlidableAction(
+                              onPressed: (_) => doc.reference.delete(),
+                              backgroundColor: AppColors.error,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              borderRadius: const BorderRadius.horizontal(
+                                right: Radius.circular(12),
+                              ),
+                            ),
+                          ],
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isDark ? Colors.white10 : Colors.black12,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data['title'],
+                                      style: AppStyles.bodyText.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            isDark
+                                                ? AppColors.darkText
+                                                : AppColors.lightText,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      data['description'],
+                                      style: AppStyles.caption.copyWith(
+                                        color:
+                                            isDark
+                                                ? AppColors.darkText
+                                                : AppColors.lightText,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      "${date.day}.${date.month}.${date.year} • ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
+                                      style: AppStyles.caption.copyWith(
+                                        fontSize: 12,
+                                        color:
+                                            isDark
+                                                ? AppColors.lightSurface
+                                                : AppColors.darkSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                "${data['price']} ₺",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                  color:
+                                      isDark
+                                          ? AppColors.darkAccent
+                                          : AppColors
+                                              .lightAccent, // Teal/Greenish
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor:
-            isDark ? AppColors.lightSecondary : AppColors.darkSecondary,
+        backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         onPressed: _showAddTransactionDialog,
         child: const Icon(Icons.add, color: Colors.white),
       ),

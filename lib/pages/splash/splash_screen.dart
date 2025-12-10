@@ -51,50 +51,41 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     // Aktif tema bilgisi
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors:
-                isDark
-                    ? [AppColors.darkPrimary, AppColors.darkAccent]
-                    : [AppColors.lightPrimary, AppColors.lightAccent],
-
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeIn,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo
-                Image.asset('assets/logo.png', width: 240, height: 240),
-                // App Name
-                Text(
-                  "MüşteriDefteri",
-                  style: AppStyles.headline1.copyWith(
-                    color:
-                        isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Image.asset('assets/logo.png', width: 240, height: 240),
+              // App Name
+              Text(
+                "MüşteriDefteri",
+                style: AppStyles.headline1.copyWith(
+                  color: textColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
 
-                const SizedBox(height: 8),
-                Text(
-                  "Kuaförler için akıllı müşteri defteri",
-                  style: AppStyles.caption.copyWith(
-                    color:
-                        isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                    fontSize: 20,
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                "Kuaförler için akıllı müşteri defteri",
+                style: AppStyles.caption.copyWith(
+                  color:
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                  fontSize: 18,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

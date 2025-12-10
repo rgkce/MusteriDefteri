@@ -9,6 +9,7 @@ import 'package:musteridefterim/pages/home/appointment_schedule_page.dart';
 import 'package:musteridefterim/pages/helpers/change_password_page.dart';
 import 'package:musteridefterim/pages/home/customer_detail_page.dart';
 import 'package:musteridefterim/pages/home/home_page.dart';
+import 'package:musteridefterim/pages/home/profile_page.dart';
 import 'package:musteridefterim/pages/splash/splash_screen.dart';
 
 void main() async {
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
                       as Map<String, dynamic>,
             ),
         "/appointment": (context) => const AppointmentSchedulePage(),
+        "/profile": (context) => const ProfilePage(),
       },
     );
   }

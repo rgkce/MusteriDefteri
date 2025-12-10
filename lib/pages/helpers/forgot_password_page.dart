@@ -64,118 +64,133 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final primary = isDark ? AppColors.darkPrimary : AppColors.lightPrimary;
-    final accent = isDark ? AppColors.darkAccent : AppColors.lightAccent;
     final textColor = isDark ? AppColors.darkText : AppColors.lightText;
-    final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.lightSurface;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [primary, accent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset("assets/logo.png", width: 200, height: 200),
-                const SizedBox(height: 10),
-                Text(
-                  "Şifremi Unuttum",
-                  style: AppStyles.headline1.copyWith(
-                    color: surface,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/logo.png", width: 150, height: 150),
+              const SizedBox(height: 10),
+              Text(
+                "Şifremi Unuttum",
+                style: AppStyles.headline1.copyWith(
+                  color: textColor,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  "Kayıtlı e-posta adresinizi girin, size sıfırlama bağlantısı gönderelim.",
-                  textAlign: TextAlign.center,
-                  style: AppStyles.caption.copyWith(
-                    color: surface.withOpacity(0.9),
-                    fontSize: 16,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Kayıtlı e-posta adresinizi girin, size sıfırlama bağlantısı gönderelim.",
+                textAlign: TextAlign.center,
+                style: AppStyles.caption.copyWith(
+                  color:
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                  fontSize: 16,
                 ),
-                const SizedBox(height: 30),
+              ),
+              const SizedBox(height: 30),
 
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    hintText: "E-posta",
-                    hintStyle: TextStyle(color: textColor.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: surface.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.email, color: textColor),
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  labelText: "E-posta",
+                  labelStyle: TextStyle(
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                  ),
+                  filled: true,
+                  fillColor: surfaceColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                   ),
                 ),
-                const SizedBox(height: 20),
+              ),
+              const SizedBox(height: 20),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: surface,
-                      foregroundColor: primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor:
+                        isDark ? AppColors.darkAccent : AppColors.lightPrimary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: _isLoading ? null : _resetPassword,
-                    child:
-                        _isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(
-                              "Sıfırlama Linki Gönder",
-                              style: AppStyles.caption.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  ),
+                  onPressed: _isLoading ? null : _resetPassword,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                            "Sıfırlama Linki Gönder",
+                            style: AppStyles.caption.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                  ),
+                          ),
                 ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 12),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Şifreni hatırladın mı?",
-                      style: AppStyles.bodyText.copyWith(
-                        color: surface,
-                        fontSize: 17,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Şifreni hatırladın mı?",
+                    style: TextStyle(
+                      color:
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                      fontSize: 15,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, "/login");
+                    },
+                    child: Text(
+                      "Giriş Yap",
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.darkAccent
+                                : AppColors.lightPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, "/login");
-                      },
-                      child: Text(
-                        "Giriş Yap",
-                        style: AppStyles.bodyText.copyWith(
-                          color: surface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
