@@ -407,192 +407,192 @@ class _HomePageState extends State<HomePage> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     // width and height variables removed
 
-    return Scaffold(
-      key: _scaffoldKey,
-      extendBodyBehindAppBar: true,
-      body: Container(
-        color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Üst bar - Minimal
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Müşteriler",
-                      style: AppStyles.headline1.copyWith(
-                        color:
-                            isDark ? AppColors.darkText : AppColors.lightText,
-                        fontSize: 24,
-                      ),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+          elevation: 0,
+          centerTitle: false,
+          title: Text(
+            "Müşteriler",
+            style: AppStyles.headline1.copyWith(
+              color: isDark ? AppColors.darkText : AppColors.lightText,
+              fontSize: 24,
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkSurface : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        isDark
+                            ? Colors.white10
+                            : Colors.black.withOpacity(0.05),
+                  ),
+                ),
+                child: PopupMenuButton<String>(
+                  onSelected: (value) {
+                    setState(() {
+                      _sortOption = value;
+                      _sortCustomers();
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                  color:
+                      isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: isDark ? Colors.white10 : Colors.black12,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : Colors.white,
+                  ),
+                  icon: Icon(
+                    Icons.sort_rounded,
+                    color: isDark ? AppColors.darkText : AppColors.lightText,
+                    size: 24,
+                  ),
+                  itemBuilder:
+                      (context) => const [
+                        PopupMenuItem(
+                          value: "Eklenme Sırası",
+                          child: Text("Eklenme Sırası"),
+                        ),
+                        PopupMenuItem(value: "A-Z", child: Text("A-Z")),
+                        PopupMenuItem(
+                          value: "Zaman",
+                          child: Text("Zamana Göre"),
+                        ),
+                      ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Container(
+          color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Arama - Minimal
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterCustomers,
+                    style: TextStyle(
+                      color: isDark ? AppColors.darkText : AppColors.lightText,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Müşteri ara...",
+                      hintStyle: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color:
+                            isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                        size: 22,
+                      ),
+                      filled: true,
+                      fillColor: isDark ? AppColors.darkSurface : Colors.white,
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+                        borderSide: BorderSide(
                           color:
                               isDark
                                   ? Colors.white10
                                   : Colors.black.withOpacity(0.05),
                         ),
                       ),
-                      child: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          setState(() {
-                            _sortOption = value;
-                            _sortCustomers();
-                          });
-                        },
-                        padding: EdgeInsets.zero,
-                        color:
-                            isDark
-                                ? AppColors.darkSurface
-                                : AppColors.lightSurface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: isDark ? Colors.white10 : Colors.black12,
-                          ),
-                        ),
-                        icon: Icon(
-                          Icons.sort_rounded,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
                           color:
-                              isDark ? AppColors.darkText : AppColors.lightText,
-                          size: 24,
+                              isDark
+                                  ? Colors.white10
+                                  : Colors.black.withOpacity(0.05),
                         ),
-                        itemBuilder:
-                            (context) => const [
-                              PopupMenuItem(
-                                value: "Eklenme Sırası",
-                                child: Text("Eklenme Sırası"),
-                              ),
-                              PopupMenuItem(value: "A-Z", child: Text("A-Z")),
-                              PopupMenuItem(
-                                value: "Zaman",
-                                child: Text("Zamana Göre"),
-                              ),
-                            ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Arama - Minimal
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _filterCustomers,
-                  style: TextStyle(
-                    color: isDark ? AppColors.darkText : AppColors.lightText,
-                    fontSize: 16,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "Müşteri ara...",
-                    hintStyle: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.lightTextSecondary,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color:
-                          isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.lightTextSecondary,
-                      size: 22,
-                    ),
-                    filled: true,
-                    fillColor: isDark ? AppColors.darkSurface : Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color:
-                            isDark
-                                ? Colors.white10
-                                : Colors.black.withOpacity(0.05),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.lightAccent,
+                          width: 1.5,
+                        ),
                       ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color:
-                            isDark
-                                ? Colors.white10
-                                : Colors.black.withOpacity(0.05),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.lightAccent,
-                        width: 1.5,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
                     ),
                   ),
                 ),
-              ),
 
-              // Liste
-              Expanded(
-                child:
-                    filteredCustomers.isEmpty
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.people_outline,
-                                size: 64,
-                                color: isDark ? Colors.white24 : Colors.black12,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "Müşteri bulunamadı",
-                                style: AppStyles.bodyText.copyWith(
-                                  color: AppColors.lightTextSecondary,
+                // Liste
+                Expanded(
+                  child:
+                      filteredCustomers.isEmpty
+                          ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.people_outline,
+                                  size: 64,
+                                  color:
+                                      isDark ? Colors.white24 : Colors.black12,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 16),
+                                Text(
+                                  "Müşteri bulunamadı",
+                                  style: AppStyles.bodyText.copyWith(
+                                    color: AppColors.lightTextSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          : ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            itemCount: filteredCustomers.length,
+                            separatorBuilder:
+                                (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final customer = filteredCustomers[index];
+                              return _buildCustomerCard(customer, isDark);
+                            },
                           ),
-                        )
-                        : ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          itemCount: filteredCustomers.length,
-                          separatorBuilder:
-                              (context, index) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final customer = filteredCustomers[index];
-                            return _buildCustomerCard(customer, isDark);
-                          },
-                        ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor:
+              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+          onPressed: () => _showAddOrEditCustomerPopup(context, isDark),
+          child: const Icon(Icons.add, color: AppColors.lightSurface),
+        ),
+        bottomNavigationBar: const NavBar(currentIndex: 0),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-        onPressed: () => _showAddOrEditCustomerPopup(context, isDark),
-        child: const Icon(Icons.add, color: AppColors.lightSurface),
-      ),
-      bottomNavigationBar: const NavBar(currentIndex: 0),
     );
   }
 

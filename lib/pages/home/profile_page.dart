@@ -17,169 +17,178 @@ class ProfilePage extends StatelessWidget {
     final bgColor =
         isDark ? AppColors.darkBackground : AppColors.lightBackground;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        title: Text(
-          "Profil",
-          style: AppStyles.headline2.copyWith(
-            color: textColor,
-            fontWeight: FontWeight.bold,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        appBar: AppBar(
+          title: Text(
+            "Profil",
+            style: AppStyles.headline2.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
         ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
 
-              // 1. Header Section
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color:
-                              isDark
-                                  ? AppColors.darkAccent
-                                  : AppColors.lightAccent,
-                          width: 2,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor:
-                            isDark ? AppColors.darkSurface : Colors.white,
-                        child: Text(
-                          (user?.email?.isNotEmpty == true)
-                              ? user!.email![0].toUpperCase()
-                              : "U",
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
+                // 1. Header Section
+                Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
                             color:
                                 isDark
                                     ? AppColors.darkAccent
                                     : AppColors.lightAccent,
+                            width: 2,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor:
+                              isDark ? AppColors.darkSurface : Colors.white,
+                          child: Text(
+                            (user?.email?.isNotEmpty == true)
+                                ? user!.email![0].toUpperCase()
+                                : "U",
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  isDark
+                                      ? AppColors.darkAccent
+                                      : AppColors.lightAccent,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      user?.email ?? "Kullanıcı",
-                      style: AppStyles.headline2.copyWith(
-                        fontSize: 20,
-                        color: textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isDark
-                                ? Colors.white10
-                                : Colors.black.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        "Ücretsiz Üye",
-                        style: AppStyles.caption.copyWith(
-                          color: textColor.withOpacity(0.7),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                      const SizedBox(height: 16),
+                      Text(
+                        user?.email ?? "Kullanıcı",
+                        style: AppStyles.headline2.copyWith(
+                          fontSize: 20,
+                          color: textColor,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // 2. Settings Sections
-              _buildSectionHeader(context, "HESAP AYARLARI"),
-              _buildSettingsGroup(context, isDark, [
-                _SettingsItem(
-                  icon: Icons.lock_outline_rounded,
-                  title: "Şifre Değiştir",
-                  onTap: () => Navigator.pushNamed(context, '/change-password'),
-                ),
-              ]),
-
-              const SizedBox(height: 24),
-              _buildSectionHeader(context, "OTURUM"),
-              _buildSettingsGroup(context, isDark, [
-                _SettingsItem(
-                  icon: Icons.logout_rounded,
-                  title: "Çıkış Yap",
-                  onTap:
-                      () => _showConfirmationDialog(
-                        context,
-                        "Çıkış Yap",
-                        "Çıkış yapmak istediğinize emin misiniz?",
-                        () async {
-                          await FirebaseAuth.instance.signOut();
-                          Navigator.pushReplacementNamed(context, "/login");
-                        },
-                        isDark,
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              isDark
+                                  ? Colors.white10
+                                  : Colors.black.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "Ücretsiz Üye",
+                          style: AppStyles.caption.copyWith(
+                            color: textColor.withOpacity(0.7),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                ),
-                _SettingsItem(
-                  icon: Icons.delete_forever_rounded,
-                  title: "Hesabı Sil",
-                  isDestructive: true,
-                  onTap:
-                      () => _showConfirmationDialog(
-                        context,
-                        "Hesabı Sil",
-                        "Hesabınızı kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
-                        () async {
-                          try {
-                            await FirebaseAuth.instance.currentUser?.delete();
-                            Navigator.pushReplacementNamed(context, '/signup');
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Hata: ${e.toString()}")),
-                            );
-                          }
-                        },
-                        isDark,
-                      ),
-                ),
-              ]),
-
-              const SizedBox(height: 40),
-
-              // 3. Version Footer
-              Center(
-                child: Text(
-                  "v1.0.0",
-                  style: AppStyles.caption.copyWith(
-                    color: textColor.withOpacity(0.3),
+                    ],
                   ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 40),
+
+                // 2. Settings Sections
+                _buildSectionHeader(context, "HESAP AYARLARI"),
+                _buildSettingsGroup(context, isDark, [
+                  _SettingsItem(
+                    icon: Icons.lock_outline_rounded,
+                    title: "Şifre Değiştir",
+                    onTap:
+                        () => Navigator.pushNamed(context, '/change-password'),
+                  ),
+                ]),
+
+                const SizedBox(height: 24),
+                _buildSectionHeader(context, "OTURUM"),
+                _buildSettingsGroup(context, isDark, [
+                  _SettingsItem(
+                    icon: Icons.logout_rounded,
+                    title: "Çıkış Yap",
+                    onTap:
+                        () => _showConfirmationDialog(
+                          context,
+                          "Çıkış Yap",
+                          "Çıkış yapmak istediğinize emin misiniz?",
+                          () async {
+                            await FirebaseAuth.instance.signOut();
+                            Navigator.pushReplacementNamed(context, "/login");
+                          },
+                          isDark,
+                        ),
+                  ),
+                  _SettingsItem(
+                    icon: Icons.delete_forever_rounded,
+                    title: "Hesabı Sil",
+                    isDestructive: true,
+                    onTap:
+                        () => _showConfirmationDialog(
+                          context,
+                          "Hesabı Sil",
+                          "Hesabınızı kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+                          () async {
+                            try {
+                              await FirebaseAuth.instance.currentUser?.delete();
+                              Navigator.pushReplacementNamed(
+                                context,
+                                '/signup',
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Hata: ${e.toString()}"),
+                                ),
+                              );
+                            }
+                          },
+                          isDark,
+                        ),
+                  ),
+                ]),
+
+                const SizedBox(height: 40),
+
+                // 3. Version Footer
+                Center(
+                  child: Text(
+                    "v1.0.0",
+                    style: AppStyles.caption.copyWith(
+                      color: textColor.withOpacity(0.3),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+        bottomNavigationBar: const NavBar(currentIndex: 2),
       ),
-      bottomNavigationBar: const NavBar(currentIndex: 2),
     );
   }
 
