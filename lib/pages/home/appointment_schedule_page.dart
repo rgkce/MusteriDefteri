@@ -252,7 +252,8 @@ class _AppointmentSchedulePageState extends State<AppointmentSchedulePage> {
             ),
           ),
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor:
+              isDark ? AppColors.darkSurface : AppColors.lightSurface,
           elevation: 0,
           automaticallyImplyLeading: false, // Managed by NavBar
         ),

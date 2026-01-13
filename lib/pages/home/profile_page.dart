@@ -30,7 +30,8 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor:
+              isDark ? AppColors.darkSurface : AppColors.lightSurface,
           elevation: 0,
           automaticallyImplyLeading: false,
         ),
@@ -84,28 +85,6 @@ class ProfilePage extends StatelessWidget {
                         style: AppStyles.headline2.copyWith(
                           fontSize: 20,
                           color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isDark
-                                  ? Colors.white10
-                                  : Colors.black.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          "Ücretsiz Üye",
-                          style: AppStyles.caption.copyWith(
-                            color: textColor.withOpacity(0.7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
                         ),
                       ),
                     ],
